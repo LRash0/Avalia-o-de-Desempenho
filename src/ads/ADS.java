@@ -101,8 +101,8 @@ public class ADS {
         }
         
         for(int i = 1 ; i < numeroDePacote ; ++i){
-            //Se o tempo do relogio atual for menor ou igual a soma do tempo gasto do pacote anterior.
-            //Caso contrário,ele vai ter que esperar a fila.
+            //Se o tempo do relogio atual for menor ou igual a soma do tempo gasto do pacote anterior,adicona o tempo do relogio atual
+            //Caso contrário,adicona a soma do tempo gasto do pacote anterior.
             if(tempoChRelogio.get(i) <= tempoServ.get(i-1) + tempoChRelogio.get(i-1)){
                 
                 tempoInicServRelogio.add(tempoChRelogio.get(i));
@@ -116,8 +116,36 @@ public class ADS {
         }
     }
     
-    public static void tempoFila(List<Double> tempoChRelogio,List<Double> tempoInicServRelogio,List<Double> tempoCltFila){
+    public static void tempoFila(List<Double> tempoChRelogio,
+            List<Double> tempoInicServRelogio,List<Double> tempoCltFila){
+        for(int i = 0 ; i < numeroDePacote ; ++i){
+            tempoCltFila.add(tempoInicServRelogio.get(i) - tempoChRelogio.get(i));
+        }
         
+        
+    }
+    
+    public static void tempoFinalServ(List<Double> tempoInicServRelogio,
+            List<Double> tempoServ, List<Double> tempoFinalServRelogio) {
+         for(int i = 0 ; i < numeroDePacote ; ++i){
+            tempoFinalServRelogio.add(tempoInicServRelogio.get(i) + tempoServ.get(i)) ;
+         }
+    }
+    
+    public static void tempoCltNoSistema(List<Double> tempoCltFila,
+            List<Double> tempoServ, List<Double> tempoCltSist) {
+         for(int i = 0 ; i < numeroDePacote ; ++i){
+             tempoCltSist.add(tempoCltFila.get(i) + tempoServ.get(i));
+         }
+    }
+    
+    public static void tempoLivre(List<Double> tempoFinalServRelogio,
+            List<Double> tempoCltSist, List<Double> tempoLivreOp) {
+        tempoLivreOp.add(tempoFinalServRelogio.get(0) - tempoCltSist.get(0));
+        for(int i = 0 ; i < numeroDePacote ; ++i){
+            tempoLivreOp.add(tempoFinalServRelogio.get(i) -
+                    (tempoFinalServRelogio.get(i-1) + tempoCltSist.get(i)));
+        }
     }
    
     public static void comecar(){
@@ -126,12 +154,19 @@ public class ADS {
         List<Double> tempoChRelogio = new ArrayList<Double>();
         List<Double> tempoInicServRelogio = new ArrayList<Double>();
         List<Double> tempoCltFila = new ArrayList<Double>();
+        List<Double> tempoFinalServRelogio = new ArrayList<Double>();
+        List<Double> tempoCltSist = new ArrayList<Double>();
+        List<Double> tempoLivreOp = new ArrayList<Double>();
         
         tempoUltimaChegar(tempoUltCh); //2)Tempo desde a última chegada do pacote anterior
-        tempoIniServ(tempoServ); //3)Tempo de chegada no relógio
-        tempoChegadaRelogio(tempoUltCh,tempoChRelogio);//4)Tempo de serviço ou tempo de roteamento (microssegundos) 
+        tempoIniServ(tempoServ); //4)Tempo de serviço ou tempo de roteamento (microssegundos) 
+        tempoChegadaRelogio(tempoUltCh,tempoChRelogio);//3)Tempo de chegada no relógio
         tempoIncServRl(tempoChRelogio,tempoServ,tempoInicServRelogio); //5)Tempo de início do roteamento (microssegundos) 
         tempoFila(tempoChRelogio,tempoInicServRelogio,tempoCltFila); //6)Tempo do pacote na fila do roteador (microssegundos)
+        tempoFinalServ(tempoInicServRelogio,tempoServ,tempoFinalServRelogio);//7) Tempo final do roteamento no relógio
+        tempoCltNoSistema(tempoCltFila,tempoServ,tempoCltSist);//8)Tempo do pacote no roteador (microssegundos), ou seja, fila + roteamento 
+        tempoLivre(tempoFinalServRelogio,tempoCltSist,tempoLivreOp);//9)Tempo livre do servidor do roteador ou tempo que o servidor do roteador ficou ocupado (microssegundos) 
+
         
         System.out.println("Tempo ultima chegada");
         exibir(tempoUltCh);
@@ -163,6 +198,12 @@ public class ADS {
         return Double.parseDouble(str);
         
     }
+
+    
+
+    
+
+    
 
     
     
