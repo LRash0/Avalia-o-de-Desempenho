@@ -19,7 +19,8 @@ import java.util.logging.Logger;
  * @author lrash0
  */
 public class Arquivo {
-     private static int numeroDePacote = 20;
+//     private static int numeroDePacote = 15;
+    private static int numeroDePacote = 20;
      public static void salvarArquivo(List<Double> tempoUltCh, List<Double> tempoServ,
             List<Double> tempoChRelogio, List<Double> tempoInicServRelogio,
             List<Double> tempoCltFila, List<Double> tempoFinalServRelogio,
@@ -29,7 +30,7 @@ public class Arquivo {
 
         try {
             //Mude aqui o local do arquivo
-            arq = new FileWriter("Coloque o camainho para salvar o arquivo");
+            arq = new FileWriter("dados.ods");
             PrintWriter gravarArq = new PrintWriter(arq);
 
             List<String> colunas = new ArrayList<String>();
@@ -49,7 +50,8 @@ public class Arquivo {
                         + tempoServ.get(i) + ";" + tempoInicServRelogio.get(i) + ";" + tempoCltFila.get(i) + ";"
                         + tempoFinalServRelogio.get(i) + ";" + tempoCltSist.get(i) + ";"
                         + tempoLivreOp.get(i) + ";" + "\n");
-
+                
+                
             }
 
             arq.close();
