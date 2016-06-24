@@ -5,6 +5,9 @@
  */
 package ads;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import static java.lang.Math.exp;
 import static java.lang.Math.log;
 import static java.lang.Math.pow;
@@ -12,6 +15,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -142,7 +147,7 @@ public class ADS {
     public static void tempoLivre(List<Double> tempoFinalServRelogio,
             List<Double> tempoCltSist, List<Double> tempoLivreOp) {
         tempoLivreOp.add(tempoFinalServRelogio.get(0) - tempoCltSist.get(0));
-        for(int i = 0 ; i < numeroDePacote ; ++i){
+        for(int i = 1 ; i < numeroDePacote ; ++i){
             tempoLivreOp.add(tempoFinalServRelogio.get(i) -
                     (tempoFinalServRelogio.get(i-1) + tempoCltSist.get(i)));
         }
@@ -157,7 +162,6 @@ public class ADS {
         List<Double> tempoFinalServRelogio = new ArrayList<Double>();
         List<Double> tempoCltSist = new ArrayList<Double>();
         List<Double> tempoLivreOp = new ArrayList<Double>();
-        
         tempoUltimaChegar(tempoUltCh); //2)Tempo desde a última chegada do pacote anterior
         tempoIniServ(tempoServ); //4)Tempo de serviço ou tempo de roteamento (microssegundos) 
         tempoChegadaRelogio(tempoUltCh,tempoChRelogio);//3)Tempo de chegada no relógio
@@ -166,7 +170,8 @@ public class ADS {
         tempoFinalServ(tempoInicServRelogio,tempoServ,tempoFinalServRelogio);//7) Tempo final do roteamento no relógio
         tempoCltNoSistema(tempoCltFila,tempoServ,tempoCltSist);//8)Tempo do pacote no roteador (microssegundos), ou seja, fila + roteamento 
         tempoLivre(tempoFinalServRelogio,tempoCltSist,tempoLivreOp);//9)Tempo livre do servidor do roteador ou tempo que o servidor do roteador ficou ocupado (microssegundos) 
-
+        salvarArquivo(tempoUltCh,tempoServ,tempoChRelogio,tempoInicServRelogio,tempoCltFila,
+                tempoFinalServRelogio,tempoCltSist,tempoLivreOp);
         
         System.out.println("Tempo ultima chegada");
         exibir(tempoUltCh);
@@ -197,6 +202,69 @@ public class ADS {
         
         return Double.parseDouble(str);
         
+    }
+
+    private static void salvarArquivo(List<Double> tempoUltCh, List<Double> tempoServ, 
+        List<Double> tempoChRelogio,List<Double> tempoInicServRelogio,
+        List<Double> tempoCltFila,List<Double> tempoFinalServRelogio,
+        List<Double> tempoCltSist,List<Double> tempoLivreOp) {
+        
+        FileWriter arq = null;
+        
+        try {
+            //Mude aqui o local do arquivo
+            arq = new FileWriter("Local do Arquivo");
+            PrintWriter gravarArq = new PrintWriter(arq);
+            
+            List<String> colunas = new ArrayList<String>();
+            //Inicializa o arraylist de acordo com as colunas solicitadas no trabalho
+            inicializarColunas(colunas);
+        
+            for(int i = 0 ; i < colunas.size(); ++i){
+            
+                gravarArq.printf(colunas.get(i)+";");
+            
+            }   
+            
+            gravarArq.printf("\n");
+            
+            for(int i = 0 ; i < numeroDePacote ; ++i){
+                gravarArq.printf(i+";"+tempoUltCh.get(i)+";"+tempoChRelogio.get(i)+";"
+                        +tempoServ.get(i)+";"+tempoInicServRelogio.get(i)+";"+tempoCltFila.get(i)+";"
+                        +tempoFinalServRelogio.get(i)+";"+tempoCltSist.get(i)+";"
+                        +tempoLivreOp.get(i)+";"+"\n");
+                
+            }
+            
+            arq.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ADS.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            
+            try {
+            
+                if (arq != null) {
+                
+                    arq.close();
+                }
+                
+            } catch (IOException ex) {
+                
+                Logger.getLogger(ADS.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    //Colunas do arquivo.
+    public static void inicializarColunas(List<String> colunas) {
+        colunas.add("Número do pacote");
+        colunas.add("Tempo desde a última chegada do pacote anterior (microssegundos)");
+        colunas.add("Tempo de chegada no relógio");
+        colunas.add("Tempo de serviço ou tempo de roteamento (microssegundos)");
+        colunas.add("Tempo de início do roteamento (microssegundos)");
+        colunas.add("Tempo do pacote na fila do roteador (microssegundos)");
+        colunas.add("Tempo final do roteamento no relógio");
+        colunas.add("Tempo do pacote no roteador (microssegundos)");
+        colunas.add("Tempo livre do servidor do roteador(microssegundos)");
     }
 
     
